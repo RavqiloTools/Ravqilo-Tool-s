@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07111f">
+<title>Ravqilo Tools — Free Online Tools</title>
+<meta name="description" content="Free online image converters, QR tools, PDF helpers and text utilities.">
+<style>
+:root{--bg:#07111f;--panel:#101f33;--card:#12243a;--border:#29415c;--text:#edf5ff;--muted:#9eb0c8;--accent:#63e6cf}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,Arial,sans-serif}
+header{padding:20px 5%;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.logo{background:var(--accent);color:#07111f;padding:10px 14px;border-radius:12px;font-weight:900;font-size:23px}
+h1{font-size:22px;margin:0}
+header p{margin:3px 0;color:var(--muted);font-size:12px}
+main{max-width:1120px;margin:auto;padding:24px 18px}
+.hero{padding:26px 0}
+.hero h2{font-size:clamp(32px,6vw,52px);line-height:1.1;margin:0 0 14px}
+.hero h2 span{color:var(--accent)}
+.hero p{max-width:650px;color:var(--muted);line-height:1.8}
+input,select,textarea{max-width:100%;font:inherit;background:#091626;color:var(--text);border:1px solid #344b66;border-radius:10px;padding:12px}
+.search{width:100%;max-width:550px}
+.category{margin:30px 0}
+.category h3{font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.card{color:var(--text);text-align:left;min-width:0;min-height:115px;padding:15px;background:linear-gradient(145deg,#142740,#0d1b2d);border:1px solid var(--border);border-radius:14px;cursor:pointer}
+.card:hover{border-color:var(--accent)}
+.icon{display:block;font-size:24px;color:var(--accent);margin-bottom:10px}
+.card strong,.card small{display:block;overflow-wrap:anywhere}
+.card small{color:var(--muted);margin-top:6px;font-size:12px}
+#work{display:none;margin:25px 0;padding:20px;background:var(--panel);border:1px solid var(--border);border-radius:16px}
+.worktop{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.worktop h3{margin:0;font-size:21px}
+textarea{width:100%;min-height:130px;display:block;margin:12px 0}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0}
+.action,.secondary{border-radius:10px;padding:11px 16px;font:inherit;cursor:pointer}
+.action{background:var(--accent);color:#07111f;border:0;font-weight:750}
+.secondary{background:#203650;color:white;border:1px solid #405775}
+#status{color:var(--accent);margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+#output{margin-top:15px;padding:14px;background:#091626;border:1px solid var(--border);border-radius:12px;overflow-wrap:anywhere}
+#output img,#output canvas{max-width:100%;height:auto}
+#output a{color:var(--accent)}
+.hint{color:var(--muted);font-size:13px}
+footer{padding:25px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){main{padding:15px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{padding:11px;min-height:110px}header{padding:16px}.hero{padding:18px 0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">R</div>
+  <div><h1>Ravqilo Tools</h1><p>Simple tools. Right in your browser.</p></div>
+</header>
+
+<main>
+<section class="hero">
+  <h2>Free tools.<br><span>Simple solutions.</span></h2>
+  <p>Convert images, create QR codes, work with PDFs and use everyday text tools in one place.</p>
+  <input class="search" id="search" placeholder="Search the 25 tools..." aria-label="Search tools">
+</section>
+
+<div id="catalog"></div>
+
+<section id="work">
+  <div class="worktop"><h3 id="toolTitle">Tool</h3><button class="secondary" id="close">Close ✕</button></div>
+  <div id="area"></div>
+  <div id="status" role="status"></div>
+  <div id="output" hidden></div>
+</section>
+</main>
+
+<footer>Ravqilo Tools · Free online utilities · Some tools require an internet connection.</footer>
+
+<script>
+"use strict";
+
+const tools=[
+["PNG to JPG","Image","🖼️","Convert PNG images to JPG"],
+["JPG to PNG","Image","🖼️","Convert JPG images to PNG"],
+["GIF to PNG","Image","🎞️","Export a GIF frame as PNG"],
+["PNG to WEBP","Image","🖼️","Convert PNG images to WEBP"],
+["WEBP to PNG","Image","🖼️","Convert WEBP images to PNG"],
+["JPG to WEBP","Image","🖼️","Convert JPG images to WEBP"],
+["WEBP to JPG","Image","🖼️","Convert WEBP images to JPG"],
+["Image Compressor","Image","📦","Reduce image file size"],
+["Image Resizer","Image","↔️","Resize an image"],
+["Background Remover","Image","✨","Remove image background using AI"],
+["Image to PDF","Image","📄","Convert an image to PDF"],
+["PDF to Images","Image","📑","Render PDF pages as images"],
+["Image to Text (OCR)","Image","🔎","Extract text from an image"],
+["QR Code Generator","QR","▦","Create a QR code"],
+["QR Code Scanner","QR","📷","Read a QR code from an image"],
+["Wi-Fi QR Generator","QR","📶","Create a Wi-Fi QR code"],
+["Contact QR Generator","QR","👤","Create a contact QR code"],
+["Word Counter","Other","📝","Count words and characters"],
+["Password Generator","Other","🔐","Generate a random password"],
+["Unit Converter","Other","↔️","Convert common units"],
+["Percentage Calculator","Other","%","Calculate percentages"],
+["Age Calculator","Other","🎂","Calculate age"],
+["JSON Formatter","Other","{}","Format and validate JSON"],
+["Text to PDF","Other","📄","Save text as a PDF"],
+["Text Cleaner","Other","🧹","Clean extra spaces and lines"]
+];
+
+const $=id=>document.getElementById(id);
+const catalog=$("catalog"),work=$("work"),area=$("area");
+const statusBox=$("status"),output=$("output");
+let activeURL=null;
+
+function render(q=""){
+ catalog.replaceChildren();
+ const groups=[["Image","Image Tools"],["QR","QR Tools"],["Other","Other Tools"]];
+ for(const [key,title] of groups){
+  const list=tools.filter(t=>t[1]===key&&t.join(" ").toLowerCase().includes(q.toLowerCase()));
+  if(!list.length)continue;
+  const section=document.createElement("section");
+  section.className="category";
+  const h=document.createElement("h3");h.textContent=title;section.appendChild(h);
+  const grid=document.createElement("div");grid.className="grid";
+  for(const t of list){
+   const b=document.createElement("button");b.className="card";
+   const icon=document.createElement("span");icon.className="icon";icon.textContent=t[2];
+   const strong=document.createElement("strong");strong.textContent=t[0];
+   const small=document.createElement("small");small.textContent=t[3];
+   b.append(icon,strong,small);b.onclick=()=>openTool(t[0]);grid.appendChild(b);
+  }
+  section.appendChild(grid);catalog.appendChild(section);
+ }
+}
+$("search").addEventListener("input",e=>render(e.target.value));
+$("close").onclick=()=>{work.style.display="none";};
+function msg(s){statusBox.textContent=s;}
+function clearOutput(){output.replaceChildren();output.hidden=true;}
+function show(node){clearOutput();output.hidden=false;if(typeof node==="string")output.textContent=node;else output.appendChild(node);}
+function html(s){area.innerHTML=s;msg("");clearOutput();}
+function btn(label="Run"){return `<div class="controls"><button type="button" class="action" id="run">${label}</button></div>`;}
+function field(id,label,type="text",accept=""){return `<label>${label}<br><input id="${id}" type="${type}" ${accept?'accept="'+accept+'"':''}></label>`;}
+function textarea(id,label="Enter text"){return `<label>${label}<textarea id="${id}"></textarea></label>`;}
+function fileField(accept="image/*",multiple=false){return `<div class="controls"><input type="file" id="files" accept="${accept}" ${multiple?"multiple":""}></div>`;}
+function value(id){return $(id).value;}
+function loadScript(src){
+ return new Promise((resolve,reject)=>{
+  const old=[...document.scripts].find(s=>s.src===src);
+  if(old){if(old.dataset.loaded==="yes")return resolve();old.addEventListener("load",resolve,{once:true});old.addEventListener("error",reject,{once:true});return;}
+  const s=document.createElement("script");s.src=src;s.onload=()=>{s.dataset.loaded="yes";resolve();};s.onerror=()=>reject(new Error("Library could not load. Check your internet connection."));
+  document.head.appendChild(s);
+ });
+}
+function download(blob,name){
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+function downloadText(text,name,type="text/plain;charset=utf-8"){download(new Blob([text],{type}),name);}
+function readData(file){
+ return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error("Could not read file."));r.readAsDataURL(file);});
+}
+function loadImage(src){
+ return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error("Cannot open this image. Try PNG or JPG."));im.src=src;});
+}
+function makeCanvas(im,w=im.naturalWidth,h=im.naturalHeight){
+ const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);return c;
+}
+function canvasBlob(c,type,quality=.9){
+ return new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error("This image format is not supported by your browser.")),type,quality));
+}
+async function getImageFile(){
+ const f=$("files").files[0];if(!f)throw new Error("Please select a file first.");return f;
+}
+function runClick(fn){$("run").onclick=async()=>{try{msg("Working...");await fn();}catch(e){msg(e.message||"Something went wrong.");}};}
+
+async function openTool(name){
+ work.style.display="block";$("toolTitle").textContent=name;html("");
+ work.scrollIntoView({behavior:"smooth",block:"start"});
+
+ const imageFormats={
+  "PNG to JPG":["image/png","image/jpeg","jpg"],
+  "JPG to PNG":["image/jpeg","image/png","png"],
+  "GIF to PNG":["image/gif","image/png","png"],
+  "PNG to WEBP":["image/png","image/webp","webp"],
+  "WEBP to PNG":["image/webp","image/png","png"],
+  "JPG to WEBP":["image/jpeg","image/webp","webp"],
+  "WEBP to JPG":["image/webp","image/jpeg","jpg"]
+ };
+
+ if(imageFormats[name]){
+  area.innerHTML=fileField("image/*")+btn("Convert and Download")+`<p class="hint">GIF conversion exports the first frame only. Animated images will not remain animated.</p>`;
+  runClick(async()=>{
+   const f=await getImageFile(),im=await loadImage(await readData(f));
+   const [from,to,ext]=imageFormats[name];
+   if(f.type&&f.type!==from)msg("Selected file type differs from the tool name; attempting conversion.");
+   const c=makeCanvas(im);
+   if(to==="image/jpeg"){const ctx=c.getContext("2d");const temp=document.createElement("canvas");temp.width=c.width;temp.height=c.height;const x=temp.getContext("2d");x.fillStyle="#ffffff";x.fillRect(0,0,temp.width,temp.height);x.drawImage(c,0,0);download(await canvasBlob(temp,to,.92),"ravqilo-converted."+ext);}
+   else download(await canvasBlob(c,to,.92),"ravqilo-converted."+ext);
+   const preview=document.createElement("img");preview.src=c.toDataURL("image/png");preview.alt="Converted image preview";show(preview);msg("Conversion complete. If your browser cannot create this format, it will show an error.");
+  });
+  return;
+ }
+
+ if(name==="Image Compressor"){
+  area.innerHTML=fileField()+field("quality","Quality (0.1–1)","number")+btn("Compress Image");
+  $("quality").value=".7";
+  runClick(async()=>{
+   const f=await getImageFile(),im=await loadImage(await readData(f));
+   const q=Math.min(1,Math.max(.1,Number(value("quality"))||.7));
+   const c=makeCanvas(im),b=await canvasBlob(c,"image/jpeg",q);
+   download(b,"ravqilo-compressed.jpg");
+   msg("Original: "+f.size.toLocaleString()+" bytes\nCompressed: "+b.size.toLocaleString()+" bytes");
+  });return;
+ }
+
+ if(name==="Image Resizer"){
+  area.innerHTML=fileField()+field("width","Width in pixels","number")+field("height","Height in pixels","number")+`<label><input type="checkbox" id="keep" checked> Keep aspect ratio</label>`+btn("Resize Image");
+  runClick(async()=>{
+   const f=await getImageFile(),im=await loadImage(await readData(f));
+   let w=Number(value("width")),h=Number(value("height"));
+   if(!w&&!h)throw new Error("Enter a width or height.");
+   if($("keep").checked){if(w&&!h)h=Math.round(w*im.naturalHeight/im.naturalWidth);else if(h&&!w)w=Math.round(h*im.naturalWidth/im.naturalHeight);}
+   w=w||im.naturalWidth;h=h||im.naturalHeight;
+   if(w<1||h<1||w>10000||h>10000)throw new Error("Dimensions must be between 1 and 10000 pixels.");
+   const b=await canvasBlob(makeCanvas(im,w,h),"image/png");download(b,"ravqilo-resized.png");msg("Resized to "+w+" × "+h+" pixels.");
+  });return;
+ }
+
+ if(name==="Background Remover"){
+  area.innerHTML=fileField()+btn("Remove Background")+`<p class="hint">This AI feature loads a large external model and may use substantial data. It requires a modern browser and internet access.</p>`;
+  runClick(async()=>{
+   const f=await getImageFile();msg("Loading AI model. This may take time and data...");
+   const mod=await import("https://esm.sh/@imgly/background-removal@1.5.5");
+   const result=await mod.removeBackground(f);
+   download(result,"ravqilo-no-background.png");const url=URL.createObjectURL(result);
+   const im=document.createElement("img");im.src=url;im.alt="Background removed";show(im);msg("Background removal complete.");
+  });return;
+ }
+
+ if(name==="Image to PDF"){
+  area.innerHTML=fileField()+btn("Create PDF");
+  runClick(async()=>{
+   await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+   const f=await getImageFile(),data=await readData(f),im=await loadImage(data);
+   const doc=new jspdf.jsPDF({orientation:im.naturalWidth>im.naturalHeight?"landscape":"portrait",unit:"pt",format:[im.naturalWidth,im.naturalHeight]});
+   doc.addImage(data,"JPEG",0,0,im.naturalWidth,im.naturalHeight);doc.save("ravqilo-image.pdf");msg("PDF downloaded.");
+  });return;
+ }
+
+ if(name==="PDF to Images"){
+  area.innerHTML=fileField("application/pdf")+btn("Convert PDF Pages")+`<p class="hint">Each PDF page is downloaded as a PNG. PDF.js loads from a CDN.</p>`;
+  runClick(async()=>{
+   await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+   const f=await getImageFile(),buf=await f.arrayBuffer();
+   pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+   const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+   for(let i=1;i<=pdf.numPages;i++){const page=await pdf.getPage(i),vp=page.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await page.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;const b=await canvasBlob(c,"image/png");download(b,"ravqilo-page-"+i+".png");}
+   msg("Processed "+pdf.numPages+" page(s). Your browser may ask you to allow multiple downloads.");
+  });return;
+ }
+
+ if(name==="Image to Text (OCR)"){
+  area.innerHTML=fileField()+btn("Extract Text")+`<p class="hint">OCR uses Tesseract and may download a language model.</p>`;
+  runClick(async()=>{
+   await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
+   const f=await getImageFile();msg("Recognizing text...");
+   const result=await Tesseract.recognize(f,"eng");
+   show(result.data.text);msg("OCR complete.");
+  });return;
+ }
+
+ if(name==="QR Code Generator"||name==="Wi-Fi QR Generator"||name==="Contact QR Generator"){
+  if(name==="QR Code Generator")area.innerHTML=textarea("data","Text or URL")+btn("Generate QR Code");
+  if(name==="Wi-Fi QR Generator")area.innerHTML=field("ssid","Wi-Fi name")+field("pw","Wi-Fi password","password")+`<label>Security<br><select id="security"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass">No password</option></select></label>`+btn("Generate QR");
+  if(name==="Contact QR Generator")area.innerHTML=field("person","Full name")+field("phone","Phone number","tel")+field("email","Email","email")+field("org","Organization")+btn("Generate Contact QR");
+  runClick(async()=>{
+   await loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js");
+   let data="";
+   if(name==="QR Code Generator")data=value("data").trim();
+   else if(name==="Wi-Fi QR Generator"){const esc=s=>s.replace(/[\\;,":]/g,"\\$&");data=`WIFI:T:${value("security")};S:${esc(value("ssid"))};P:${esc(value("pw"))};;`;}
+   else data=`BEGIN:VCARD\nVERSION:3.0\nFN:${value("person")}\nTEL:${value("phone")}\nEMAIL:${value("email")}\nORG:${value("org")}\nEND:VCARD`;
+   if(!data.trim())throw new Error("Enter the required information first.");
+   show("");new QRCode(output,{text:data,width:240,height:240});msg("QR created. Long-press the QR image to save it.");
+  });return;
+ }
+
+ if(name==="QR Code Scanner"){
+  area.innerHTML=fileField()+btn("Scan QR Image");
+  runClick(async()=>{
+   await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js");
+   const f=await getImageFile(),im=await loadImage(await readData(f)),c=makeCanvas(im),ctx=c.getContext("2d"),d=ctx.getImageData(0,0,c.width,c.height);
+   const r=jsQR(d.data,d.width,d.height);if(!r)throw new Error("No QR code found. Try a clearer image.");show(r.data);msg("QR code read successfully.");
+  });return;
+ }
+
+ if(name==="Word Counter"){
+  area.innerHTML=textarea("text","Enter or paste text")+btn("Count Words");
+  runClick(async()=>{const s=value("text"),words=s.trim()?s.trim().split(/\s+/u).length:0;show("Words: "+words+"\nCharacters: "+s.length+"\nCharacters without spaces: "+s.replace(/\s/g,"").length+"\nLines: "+(s? s.split(/\r\n|\r|\n/).length:0));});return;
+ }
+
+ if(name==="Text Cleaner"){
+  area.innerHTML=textarea("text","Enter text to clean")+btn("Clean Text");
+  runClick(async()=>{const s=value("text").replace(/\r\n?/g,"\n").split("\n").map(x=>x.replace(/[ \t]+/g," ").trim()).filter(Boolean).join("\n");show(s);});return;
+ }
+
+ if(name==="Password Generator"){
+  area.innerHTML=field("length","Password length (8–128)","number")+`<div class="controls"><label><input type="checkbox" id="symbols" checked> Include symbols</label></div>`+btn("Generate Password");
+  $("length").value=16;
+  runClick(async()=>{
+   const n=Math.min(128,Math.max(8,Number(value("length"))||16));
+   let chars="abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";if($("symbols").checked)chars+="!@#$%^&*_-+=";
+   const a=new Uint32Array(n);crypto.getRandomValues(a);show(Array.from(a,x=>chars[x%chars.length]).join(""));
+  });return;
+ }
+
+ if(name==="Unit Converter"){
+  area.innerHTML=field("number","Value","number")+`<div class="controls"><select id="unit">
+  <option value="km">Kilometres → Miles</option><option value="mi">Miles → Kilometres</option>
+  <option value="kg">Kilograms → Pounds</option><option value="lb">Pounds → Kilograms</option>
+  <option value="cm">Centimetres → Inches</option><option value="inch">Inches → Centimetres</option>
+  <option value="c">Celsius → Fahrenheit</option><option value="f">Fahrenheit → Celsius</option>
+  <option value="m">Metres → Feet</option><option value="ft">Feet → Metres</option>
+  </select></div>`+btn("Convert");
+  runClick(async()=>{if(value("number")==="")throw new Error("Enter a value.");const x=Number(value("number")),f={km:x=>x*.621371,mi:x=>x/ .621371,kg:x=>x*2.20462262,lb:x=>x/2.20462262,cm:x=>x/2.54,inch:x=>x*2.54,c:x=>x*9/5+32,f:x=>(x-32)*5/9,m:x=>x*3.28084,ft:x=>x/3.28084};show("Result: "+f[value("unit")](x).toFixed(4));});return;
+ }
+
+ if(name==="Percentage Calculator"){
+  area.innerHTML=field("number","Number","number")+field("percent","Percentage","number")+btn("Calculate");
+  runClick(async()=>{if(value("number")===""||value("percent")==="")throw new Error("Fill in both numbers.");const a=Number(value("number")),p=Number(value("percent"));show(p+"% of "+a+" = "+(a*p/100));});return;
+ }
+
+ if(name==="Age Calculator"){
+  area.innerHTML=field("birth","Date of birth","date")+btn("Calculate Age");
+  runClick(async()=>{if(!value("birth"))throw new Error("Select your date of birth.");const d=new Date(value("birth")+"T00:00:00"),n=new Date();if(d>n)throw new Error("Birth date cannot be in the future.");let y=n.getFullYear()-d.getFullYear(),m=n.getMonth()-d.getMonth(),day=n.getDate()-d.getDate();if(day<0){m--;day+=new Date(n.getFullYear(),n.getMonth(),0).getDate();}if(m<0){y--;m+=12;}show(`Age: ${y} years, ${m} months, ${day} days`);});return;
+ }
+
+ if(name==="JSON Formatter"){
+  area.innerHTML=textarea("json","Paste JSON here")+btn("Format JSON");
+  runClick(async()=>{try{show(JSON.stringify(JSON.parse(value("json")),null,2));}catch(e){throw new Error("Invalid JSON. Check brackets, quotation marks and commas.");}});return;
+ }
+
+ if(name==="Text to PDF"){
+  area.innerHTML=textarea("text","Enter text for your PDF")+btn("Create PDF");
+  runClick(async()=>{
+   await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+   const text=value("text");if(!text.trim())throw new Error("Enter some text first.");
+   const doc=new jspdf.jsPDF(),lines=doc.splitTextToSize(text,180);let y=15;
+   for(const line of lines){if(y>280){doc.addPage();y=15;}doc.text(line,15,y);y+=7;}
+   doc.save("ravqilo-text.pdf");msg("PDF downloaded. Note: built-in fonts may not support Urdu text.");
+  });return;
+ }
+
+ msg("This tool could not be opened.");
+}
+
+render();
+</script>
+</body>
+</html>
